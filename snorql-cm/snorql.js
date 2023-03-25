@@ -9,7 +9,29 @@ String.prototype.startsWith = function(str) {
 }
 
 function Snorql() {
-    this._endpoint = 'https://URL.of.SPARQLendpoint';
+    // Initialize input values from sessionStorage
+    this.siteId = sessionStorage.getItem('siteId') || '';
+    this.orgId = sessionStorage.getItem('orgId') || '';
+    this.datasetId = sessionStorage.getItem('datasetId') || 'ddw-catalogs';
+    this.apiKey = sessionStorage.getItem('apiKey') || '';
+    this.graphLayer = sessionStorage.getItem('graphLayer') || '';
+
+    // Set the initial values for the input fields
+    document.getElementById('siteId').value = this.siteId;
+    document.getElementById('orgId').value = this.orgId;
+    document.getElementById('datasetId').value = this.datasetId;
+    document.getElementById('apiKey').value = this.apiKey;
+    document.getElementById('graphLayer').value = this.graphLayer;
+
+    // Build varibles from input
+    this._target = this.orgId + '/' + this.datasetId
+    if (this.siteId == "") {
+        var prefixSlug = this.orgId
+    } else {
+        var prefixSlug = this.siteId + '-' + this.orgId + '.app'
+    }
+    this._orgPrefix = 'https://' + prefixSlug + '.linked.data.world/d/ddw-catalogs/';
+    this._endpoint = 'https://query.data.world/sparql/' + this.orgId + '/' + this.datasetId;
     this._poweredByLink = 'https://github.com/dbcls/SNORQL-CM';
     this._poweredByLabel = 'SNORQL-CM';
     this._poweredByLink_D2R = 'http://d2rq.org/';
@@ -22,6 +44,28 @@ function Snorql() {
     this._namespaces = {};
     this._graph = null;
     this._xsltDOM = null;
+
+    this.submitParams = function() {
+        // Get the input values from the form
+        this.siteId = document.getElementById('siteId').value;
+        this.orgId = document.getElementById('orgId').value;
+        this.datasetId = document.getElementById('datasetId').value;
+        this.apiKey = document.getElementById('apiKey').value;
+    
+        // Store the input values in sessionStorage
+        sessionStorage.setItem('siteId', this.siteId);
+        sessionStorage.setItem('orgId', this.orgId);
+        sessionStorage.setItem('datasetId', this.datasetId);
+        sessionStorage.setItem('apiKey', this.apiKey);
+    
+        // Do something with the input values, for example, log them to the console
+        this.setNamespaces(D2R_namespacePrefixes);
+        console.log('Site ID: ' + this.siteId);
+        console.log('Org ID: ' + this.orgId);
+        console.log('Dataset ID: ' + this.datasetId);
+        console.log('API Key: ' + this.apiKey);
+        this.start();
+    }
 
     this.start = function() {
         // TODO: Extract a QueryType class
@@ -81,13 +125,13 @@ function Snorql() {
         var match = queryString.match(/describe=([^&]*)/);
         if (match) {
             var resultTitle = 'Description of ' + decodeURIComponent(match[1]) + ':';
-            var query = 'SELECT DISTINCT ?property ?hasValue ?isValueOf\n' +
+            var query = 'SELECT DISTINCT ?subject ?predicate ?object\n' +
                     'WHERE {\n' +
-                    '  { <' + decodeURIComponent(match[1]) + '> ?property ?hasValue }\n' +
+                    '  { <' + decodeURIComponent(match[1]) + '> ?predicate ?object }\n' +
                     '  UNION\n' +
-                    '  { ?isValueOf ?property <' + decodeURIComponent(match[1]) + '> }\n' +
+                    '  { ?subject ?property <' + decodeURIComponent(match[1]) + '> }\n' +
                     '}\n' +
-                    'ORDER BY (!BOUND(?hasValue)) ?property ?hasValue ?isValueOf';
+                    'ORDER BY (!BOUND(?object)) ?predicate ?hasValue ?subject';
         }
         if (queryString.match(/query=/)) {
             var resultTitle = 'SPARQL results:';
@@ -101,7 +145,7 @@ function Snorql() {
         editor.setValue(querytext);
 
         this.displayBusyMessage();
-        var service = new SPARQL.Service(this._endpoint);
+        var service = new SPARQL.Service(this._endpoint, this.apiKey);
         if (this._graph) {
             service.addDefaultGraph(this._graph);
         }
@@ -157,7 +201,7 @@ function Snorql() {
     }
 
     this._displayEndpointURL = function() {
-        var newTitle = 'SNORQL-CM: Exploring ' + this._endpoint;
+        var newTitle = 'SNORQL-DDW: Exploring ' + this._target;
         this._display(document.createTextNode(newTitle), 'title');
         document.title = newTitle;
     }
@@ -173,6 +217,9 @@ function Snorql() {
     
     this.setNamespaces = function(namespaces) {
         this._namespaces = namespaces;
+        if (this.orgId != '') {
+            this._namespaces.orgprofile = this._orgPrefix
+        }
         this._display(document.createTextNode(this._getPrefixes()), 'prefixestext');
     }
 

@@ -9,4 +9,6 @@ var D2R_namespacePrefixes = {
     mo: 'http://purl.org/ontology/mo/',
     ov: 'http://open.vocab.org/terms/',
     xsd: 'http://www.w3.org/2001/XMLSchema#',
+    dwec: 'https://dwec.data.world/v0/',
+    kos: 'https://open-kos.org/schema/'
 };

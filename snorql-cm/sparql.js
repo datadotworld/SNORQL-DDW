@@ -135,7 +135,7 @@ SPARQL.statistics = {
 // A SPARQL service represents a single endpoint which implements the HTTP (GET or POST) 
 // bindings of the SPARQL Protocol. It provides convenience methods to set dataset and
 // prefix options for all queries created for this endpoint.
-SPARQL.Service = function(endpoint) {
+SPARQL.Service = function(endpoint, apiKey) {
 	//---------------
 	// private fields
 	var _endpoint = endpoint;
@@ -146,6 +146,7 @@ SPARQL.Service = function(endpoint) {
 	var _output = 'json';
 	var _max_simultaneous = 0;
 	var _request_headers = {};
+	_request_headers.Authorization = 'Bearer ' + apiKey
 
 	//----------
 	// accessors

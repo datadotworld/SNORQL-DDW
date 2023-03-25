@@ -2,7 +2,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
   <head>
-    <title>SNORQL-CM: A SPARQL Explorer</title>
+    <title>SNORQL-DDW: A SPARQL Explorer</title>
     <link rel="stylesheet" type="text/css" href="style.css" />
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.6/codemirror.min.css">
@@ -11,7 +11,7 @@
 
   <body class="snorql" onload="snorql.start()">
     <div id="header">
-      <h1 id="title">SNORQL-CM: A SPARQL Explorer</h1>
+      <h1 id="title">SNORQL-DDW: A SPARQL Explorer</h1>
     </div>
 
     <div class="section" style="float: right; width: 8em">
@@ -36,6 +36,31 @@
       <p style="display: inline">
         <span id="selected-named-graph">Named graph goes here</span>.
         <a href="javascript:snorql.switchToDefaultGraph()">Switch back to default graph</a>
+      </p>
+    </div>
+
+    <div id="inputs-sections" class="section" style="margin-right: 12em">
+      <h2 style="display: inline">INPUTS:</h2>
+      <p style="display: inline">
+        <form onsubmit="return false;">
+          <label for="siteId">Site ID:</label>
+          <input type="text" id="siteId" name="siteId" onkeydown="if (event.keyCode === 13) { snorql.submitParams(); }">
+          <label for="orgId">Org ID:</label>
+          <input type="text" id="orgId" name="orgId" onkeydown="if (event.keyCode === 13) { snorql.submitParams(); }">
+          <label for="datasetId">Dateset ID:</label>
+          <input type="text" id="datasetId" name="datasetId" onkeydown="if (event.keyCode === 13) { snorql.submitParams(); }">
+          <label for="apiKey">API Key:</label>
+          <input type="text" id="apiKey" name="apiKey" onkeydown="if (event.keyCode === 13) { snorql.submitParams(); }">
+          <label for="graphLayer">Graph Layer:</label>
+          <select id="graphLayer" name="graphLayer"  onchange="myFunction()">
+            <option value="base">Base (:)</option>
+            <option value="edit">User (:edit)</option>
+            <option value="current">Merged (:current)</option>
+            <option value="system">System (:system)</option>
+            <option value="axioms">Axioms (:axioms)</option>
+          </select>
+          <input type="button" value="Submit" onclick="snorql.submitParams()">
+        </form>
       </p>
     </div>
 
