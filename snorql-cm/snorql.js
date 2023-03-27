@@ -129,7 +129,7 @@ function Snorql() {
                     'WHERE {\n' +
                     '  { <' + decodeURIComponent(match[1]) + '> ?predicate ?object }\n' +
                     '  UNION\n' +
-                    '  { ?subject ?property <' + decodeURIComponent(match[1]) + '> }\n' +
+                    '  { ?subject ?predicate <' + decodeURIComponent(match[1]) + '> }\n' +
                     '}\n' +
                     'ORDER BY (!BOUND(?object)) ?predicate ?hasValue ?subject';
         }
