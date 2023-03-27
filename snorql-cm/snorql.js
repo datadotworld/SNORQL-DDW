@@ -98,6 +98,32 @@ function Snorql() {
                     '?s ?p ?o .\n' +
                     '} ORDER BY DESC (?pcount)';
         }
+        if (browse && browse[1] == 'metadatapresentation') {
+            var resultTitle = 'List of all metadata presentations:';
+            var querytext = 'SELECT DISTINCT ?forType ?label ?viaProperty ?mdp\n' +
+                    'WHERE {\n' +
+                    '   ?mdp a dwec:MetadataPresentation;\n' +
+                    '        rdfs:label ?label ;\n' +
+                    '        dwec:forType ?forType ;\n' +
+                    '        dwec:viaProperty ?viaProperty .\n' +
+                    '}\n' +
+                    'ORDER BY ?forType ?label ?viaProperty ?mdp\n'
+            var query = 'PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\n' + querytext;
+        }
+        if (browse && browse[1] == 'relationshippresentation') {
+            var resultTitle = 'List of all relationship presentations:';
+            var querytext = 'SELECT DISTINCT ?forType ?relationshipType ?forTargetType ?relationshipTerm ?resourceTerm ?relp\n' +
+                    'WHERE {\n' +
+                    '   ?relp a dwec:RelationshipPresentation;\n' +
+                    '        dwec:forType ?forType ; \n' +
+                    '        dwec:forRelationshipType ?relationshipType ;\n' +
+                    '        dwec:forTargetType ?forTargetType ;\n' +
+                    '        dwec:relationshipTerm ?relationshipTerm ;\n' +
+                    '        dwec:resourceTerm ?resourceTerm .\n' +
+                    '}\n' +
+                    'ORDER BY ?forType ?relationshipType ?forTargetType ?relationshipTerm ?resourceTerm ?relp\n'
+            var query = 'PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\n' + querytext;
+        }
         if (browse && browse[1] == 'graphs') {
             var resultTitle = 'List of all named graphs:';
             var querytext = 'SELECT DISTINCT ?namedgraph ?label\n' +
