@@ -54,7 +54,7 @@
           <label for="apiKey">API Key:</label>
           <input type="text" id="apiKey" name="apiKey" onkeydown="if (event.keyCode === 13) { snorql.submitParams(); }">
           <label for="graphLayer">Graph Layer:</label>
-          <select id="graphLayer" name="graphLayer"  onchange="myFunction()">
+          <select id="graphLayer" name="graphLayer"  onchange="snorql.submitParams()">
             <option value="base">Base (:)</option>
             <option value="edit">User (:edit)</option>
             <option value="current">Merged (:current)</option>

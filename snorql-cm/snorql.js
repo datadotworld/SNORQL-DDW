@@ -14,7 +14,7 @@ function Snorql() {
     this.orgId = sessionStorage.getItem('orgId') || '';
     this.datasetId = sessionStorage.getItem('datasetId') || 'ddw-catalogs';
     this.apiKey = sessionStorage.getItem('apiKey') || '';
-    this.graphLayer = sessionStorage.getItem('graphLayer') || '';
+    this.graphLayer = sessionStorage.getItem('graphLayer') || 'base';
 
     // Set the initial values for the input fields
     document.getElementById('siteId').value = this.siteId;
@@ -51,19 +51,22 @@ function Snorql() {
         this.orgId = document.getElementById('orgId').value;
         this.datasetId = document.getElementById('datasetId').value;
         this.apiKey = document.getElementById('apiKey').value;
+        this.graphLayer = document.getElementById('graphLayer').value;
     
         // Store the input values in sessionStorage
         sessionStorage.setItem('siteId', this.siteId);
         sessionStorage.setItem('orgId', this.orgId);
         sessionStorage.setItem('datasetId', this.datasetId);
         sessionStorage.setItem('apiKey', this.apiKey);
+        sessionStorage.setItem('graphLayer', this.graphLayer);
     
-        // Do something with the input values, for example, log them to the console
+        // Do something with the input values
         this.setNamespaces(D2R_namespacePrefixes);
         console.log('Site ID: ' + this.siteId);
         console.log('Org ID: ' + this.orgId);
         console.log('Dataset ID: ' + this.datasetId);
         console.log('API Key: ' + this.apiKey);
+        console.log('Graph Layer: ' + this.graphLayer);
         this.start();
     }
 
@@ -76,8 +79,23 @@ function Snorql() {
         this.updateOutputMode();
         var match = document.location.href.match(/\?(.*)/);
         var queryString = match ? match[1] : '';
+    
+        if (this.graphLayer == 'base') {
+            var fromLayer = ""
+        } else if (this.graphLayer == 'edit' ) {
+            var fromLayer = 'FROM orgprofile:edit\n'
+        } else if (this.graphLayer == 'current' ) {
+            var fromLayer = 'FROM orgprofile:current\n'
+        } else if (this.graphLayer == 'system' ) {
+            var fromLayer = 'FROM orgprofile:system\n'
+        } else if (this.graphLayer == 'axioms' ) {
+            var fromLayer = 'FROM orgprofile:axioms\n'
+        } else {
+            var fromLayer = ""
+        }
+
         if (!queryString) {
-            document.getElementById('querytext').value = 'SELECT DISTINCT * WHERE {\n  ?s ?p ?o\n}\nLIMIT 10';
+            document.getElementById('querytext').value = 'SELECT DISTINCT *\n' + fromLayer + 'WHERE {\n  ?s ?p ?o\n}\nLIMIT 10';
             this._updateGraph(null, false);
             return;
         }
@@ -89,18 +107,22 @@ function Snorql() {
         if (browse && browse[1] == 'classes') {
             var resultTitle = 'List of all classes:';
             var query = 'SELECT DISTINCT ?class\n' +
+                    fromLayer +
                     'WHERE { [] a ?class }\n' +
                     'ORDER BY ?class';
         }
         if (browse && browse[1] == 'properties') {
             var resultTitle = 'List of all properties:';
-            var query = 'SELECT (count(?p) as ?pcount) ?p WHERE {\n' +
+            var query = 'SELECT (count(?p) as ?pcount) ?p\n' +
+                    fromLayer +
+                    'WHERE {\n' +
                     '?s ?p ?o .\n' +
                     '} ORDER BY DESC (?pcount)';
         }
         if (browse && browse[1] == 'metadatapresentation') {
             var resultTitle = 'List of all metadata presentations:';
             var querytext = 'SELECT DISTINCT ?forType ?label ?viaProperty ?mdp\n' +
+                    fromLayer +
                     'WHERE {\n' +
                     '   ?mdp a dwec:MetadataPresentation;\n' +
                     '        rdfs:label ?label ;\n' +
@@ -113,6 +135,7 @@ function Snorql() {
         if (browse && browse[1] == 'relationshippresentation') {
             var resultTitle = 'List of all relationship presentations:';
             var querytext = 'SELECT DISTINCT ?forType ?relationshipType ?forTargetType ?relationshipTerm ?resourceTerm ?relp\n' +
+                    fromLayer +
                     'WHERE {\n' +
                     '   ?relp a dwec:RelationshipPresentation;\n' +
                     '        dwec:forType ?forType ; \n' +
@@ -127,6 +150,7 @@ function Snorql() {
         if (browse && browse[1] == 'graphs') {
             var resultTitle = 'List of all named graphs:';
             var querytext = 'SELECT DISTINCT ?namedgraph ?label\n' +
+                    fromLayer +
                     'WHERE {\n' +
                     '  GRAPH ?namedgraph { ?s ?p ?o }\n' +
                     '  OPTIONAL { ?namedgraph rdfs:label ?label }\n' +
@@ -138,6 +162,7 @@ function Snorql() {
         if (match) {
             var resultTitle = 'All uses of property ' + decodeURIComponent(match[1]) + ':';
             var query = 'SELECT DISTINCT ?resource ?value\n' +
+                    fromLayer +
                     'WHERE { ?resource <' + decodeURIComponent(match[1]) + '> ?value }\n' +
                     'ORDER BY ?resource ?value';
         }
@@ -145,6 +170,7 @@ function Snorql() {
         if (match) {
             var resultTitle = 'All instances of class ' + decodeURIComponent(match[1]) + ':';
             var query = 'SELECT DISTINCT ?instance\n' +
+                    fromLayer +
                     'WHERE { ?instance a <' + decodeURIComponent(match[1]) + '> }\n' +
                     'ORDER BY ?instance';
         }
@@ -152,6 +178,7 @@ function Snorql() {
         if (match) {
             var resultTitle = 'Description of ' + decodeURIComponent(match[1]) + ':';
             var query = 'SELECT DISTINCT ?subject ?predicate ?object\n' +
+                    fromLayer +
                     'WHERE {\n' +
                     '  { <' + decodeURIComponent(match[1]) + '> ?predicate ?object }\n' +
                     '  UNION\n' +
