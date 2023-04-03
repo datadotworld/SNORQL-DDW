@@ -117,7 +117,9 @@ function Snorql() {
                     fromLayer +
                     'WHERE {\n' +
                     '?s ?p ?o .\n' +
-                    '} ORDER BY DESC (?pcount)';
+                    '}\n' +
+                    'GROUP BY ?p\n' +
+                    'ORDER BY DESC (?pcount)';
         }
         if (browse && browse[1] == 'metadatapresentation') {
             var resultTitle = 'List of all metadata presentations:';
