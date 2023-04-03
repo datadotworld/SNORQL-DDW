@@ -5,6 +5,7 @@ var D2R_namespacePrefixes = {
     dct: 'http://purl.org/dc/terms/',
     foaf: 'http://xmlns.com/foaf/0.1/',
     csvw: 'http://www.w3.org/ns/csvw#',
+    label: 'http://purl.org/net/vocab/2004/03/label#',
     dcat: 'http://www.w3.org/ns/dcat#',
     dwec: 'https://dwec.data.world/v0/',
     kos: 'https://open-kos.org/schema/',

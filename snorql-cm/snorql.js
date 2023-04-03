@@ -134,17 +134,26 @@ function Snorql() {
         }
         if (browse && browse[1] == 'relationshippresentation') {
             var resultTitle = 'List of all relationship presentations:';
-            var querytext = 'SELECT DISTINCT ?forType ?relationshipType ?forTargetType ?relationshipTerm ?resourceTerm ?relp\n' +
+            var querytext = 'SELECT DISTINCT ?forType ?relationshipType ?isInverse ?forTargetType ?resourceTerm ?resTermLabel ?resTermPlural ?relationshipTerm ?relTermLabel ?relTermPlural ?relp\n' +
                     fromLayer +
                     'WHERE {\n' +
-                    '   ?relp a dwec:RelationshipPresentation;\n' +
-                    '        dwec:forType ?forType ; \n' +
-                    '        dwec:forRelationshipType ?relationshipType ;\n' +
-                    '        dwec:forTargetType ?forTargetType ;\n' +
-                    '        dwec:relationshipTerm ?relationshipTerm ;\n' +
-                    '        dwec:resourceTerm ?resourceTerm .\n' +
+                    '    ?relp a dwec:RelationshipPresentation;\n' +
+                    '         dwec:forType ?forType ;\n' +
+                    '         dwec:forRelationshipType ?rType ;\n' +
+                    '         dwec:forTargetType ?forTargetType ;\n' +
+                    '         dwec:resourceTerm ?resourceTerm ;\n' +
+                    '         dwec:relationshipTerm ?relationshipTerm .\n' +
+                    '   ?rType ?rTypeP ?rTypeO .\n' +
+                    '   BIND (IF(?rTypeP = dwec:inversePath,?rTypeO,?rType) AS ?relationshipType)\n' +
+                    '   BIND (IF(?rTypeP = dwec:inversePath,\'Y\',\'N\') AS ?isInverse)\n' +
+                    '    ?resourceTerm rdfs:label ?resTermLabel ;\n' +
+                    '         label:plural ?resTermPlural .\n' +
+                    '    ?relationshipTerm rdfs:label ?relTermLabel ;\n' +
+                    '         label:plural ?relTermPlural .\n' +
+                    '   BIND (IF(?isInverse = \'Y\', ?forTargetType, ?forType) AS ?sortForType)\n' +
+                    '   BIND (IF(?isInverse = \'Y\', ?forType, ?forTargetType) AS ?sortForTargetType)\n' +
                     '}\n' +
-                    'ORDER BY ?forType ?relationshipType ?forTargetType ?relationshipTerm ?resourceTerm ?relp\n'
+                    'ORDER BY ?sortForType ?sortForTargetType ?relationshipType ?isInverse\n'
             var query = 'PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\n' + querytext;
         }
         if (browse && browse[1] == 'graphs') {
